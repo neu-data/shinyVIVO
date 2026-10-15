@@ -7,7 +7,7 @@
 plot_theme_metric(df, themes, metric_col)
 }
 \arguments{
-\item{df}{A coded data frame (see [code_dataframe()]).}
+\item{df}{A coded data frame (see \code{\link[=code_dataframe]{code_dataframe()}}).}
 
 \item{themes}{Theme column names.}
 

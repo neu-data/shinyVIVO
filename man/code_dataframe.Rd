@@ -20,18 +20,18 @@ code_dataframe(
 \item{text_col}{Name of the column holding the text to code.}
 
 \item{themes}{Character vector of theme names. One logical column is
-added per theme (`NA` where coding failed).}
+added per theme (\code{NA} where coding failed).}
 
-\item{model, url}{Passed to [ollama_code_text()].}
+\item{model, url}{Passed to \code{\link[=ollama_code_text]{ollama_code_text()}}.}
 
-\item{progress}{Optional function called as `progress(i, n)` after each
+\item{progress}{Optional function called as \code{progress(i, n)} after each
 row, e.g. to drive a progress bar.}
 
 \item{coder}{The function used to code a single text. Override for
 testing or to plug in another backend.}
 }
 \value{
-`df` with one added logical column per theme.
+\code{df} with one added logical column per theme.
 }
 \description{
 Code every row of a data frame

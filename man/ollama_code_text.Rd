@@ -17,15 +17,15 @@ ollama_code_text(
 
 \item{themes}{Character vector of theme names.}
 
-\item{model}{Name of an Ollama model (e.g. `"llama3"`).}
+\item{model}{Name of an Ollama model (e.g. \code{"llama3"}).}
 
 \item{url}{Base URL of the Ollama server.}
 
 \item{timeout}{Request timeout in seconds.}
 }
 \value{
-A named logical vector, one element per theme. All `NA` if the
-  request or parsing fails.
+A named logical vector, one element per theme. All \code{NA} if the
+request or parsing fails.
 }
 \description{
 Sends the text to Ollama with a JSON schema that forces one boolean per

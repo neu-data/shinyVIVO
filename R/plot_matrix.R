@@ -43,9 +43,12 @@ plot_theme_metric <- function(df, themes, metric_col) {
     ggplot2::geom_text(ggplot2::aes(label = paste0("n=", .data$n)),
                        position = ggplot2::position_dodge(width = 0.9),
                        vjust = -0.4, size = 3.5, na.rm = TRUE) +
-    ggplot2::scale_fill_manual(values = c(Absent = "#95a5a6", Present = "#1abc9c"),
-                               drop = FALSE) +
-    ggplot2::theme_minimal(base_size = 14) +
+    ggplot2::scale_fill_manual(
+      values = c(Absent = neudata_palette(6, named = TRUE)[["grey"]],
+                 Present = neudata_palette(1)),
+      drop = FALSE
+    ) +
+    theme_neudata(base_size = 14) +
     ggplot2::labs(
       title = "Theme-Metric Interaction",
       x = "Theme",
@@ -53,6 +56,3 @@ plot_theme_metric <- function(df, themes, metric_col) {
       fill = NULL
     )
 }
-
-#' @importFrom ggplot2 .data
-NULL

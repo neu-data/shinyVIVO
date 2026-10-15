@@ -1,0 +1,58 @@
+url: https://neu-data.github.io/shinyVIVO/
+
+template:
+  bootstrap: 5
+  bslib:
+    primary: "#055F56"
+    secondary: "#0B376C"
+    navbar-bg: "#04242F"
+    link-color: "#0B376C"
+    headings-color: "#04242F"
+    base_font: {google: "Source Sans 3"}
+    heading_font: {google: "Source Sans 3"}
+    code_font: {google: "JetBrains Mono"}
+
+navbar:
+  bg: primary
+  type: dark
+  structure:
+    left: [intro, reference, articles, news]
+    right: [search, neudata, github]
+  components:
+    neudata:
+      icon: fa-globe
+      href: https://www.neu-data.com
+      aria-label: Neudata website
+
+footer:
+  structure:
+    left: neudata
+    right: built_with
+  components:
+    neudata: "Developed by [**Neudata Consulting Ltd**](https://www.neu-data.com) · *Insight. Impact. Innovation.*"
+
+home:
+  sidebar:
+    structure: [links, license, community, citation, authors, dev]
+
+reference:
+  - title: Launch the workbench
+    contents:
+      - launch_app
+  - title: Code text with a local model
+    contents:
+      - ollama_code_text
+      - code_dataframe
+      - ollama_models
+      - parse_themes
+  - title: Link themes to quantitative data
+    contents:
+      - summarise_theme_metric
+      - plot_theme_metric
+  - title: Try it out
+    contents:
+      - vivo_sample_data
+  - title: Neudata look and feel
+    contents:
+      - neudata_palette
+      - theme_neudata

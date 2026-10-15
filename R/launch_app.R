@@ -6,6 +6,7 @@
 #' @param ... Passed to [shiny::runApp()] (e.g. `port`, `launch.browser`).
 #' @return Called for its side effect of running the app.
 #' @export
+#' @importFrom bsicons bs_icon
 #' @importFrom bslib bs_theme
 #' @importFrom DT DTOutput
 #' @importFrom readxl read_excel

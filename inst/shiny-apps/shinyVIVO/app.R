@@ -1,11 +1,24 @@
+# shinyVIVO workbench, built on neu-data/shiny-app-template.
+# Files in R/ are sourced automatically by Shiny (theme.R).
+
 library(shiny)
 library(bslib)
 library(shinyVIVO)
 
+APP_NAME <- "shinyVIVO"
+
 # --- UI ----------------------------------------------------------------------
-ui <- page_sidebar(
-  title = "shinyVIVO — Mixed-Methods AI Workbench",
-  theme = bs_theme(version = 5, bootswatch = "minty"),
+ui <- page_navbar(
+  title = neudata_brand(APP_NAME),
+  window_title = paste(APP_NAME, "· Neudata"),
+  theme = neudata_bs_theme(),
+  navbar_options = navbar_options(bg = neudata_cols[["navy"]], theme = "dark"),
+  fillable = FALSE,
+  header = tags$head(
+    tags$link(rel = "stylesheet", href = "neudata.css"),
+    tags$link(rel = "icon", href = "neudata-logo.png")
+  ),
+  footer = neudata_footer(),
 
   sidebar = sidebar(
     width = 320,
@@ -21,30 +34,99 @@ ui <- page_sidebar(
     selectizeInput("ollama_model", "Model", choices = "llama3", selected = "llama3",
                    options = list(create = TRUE)),
     actionLink("refresh_models", "Refresh model list"),
-    textInput("target_codes", "Themes (comma separated)",
+    textInput("target_codes", "3. Themes (comma separated)",
               value = "Frustration, Bug Report, Praise"),
     hr(),
 
     actionButton("run_ai_coding", "Run local AI coding",
-                 class = "btn-success w-100", icon = icon("robot"))
+                 class = "btn-primary w-100", icon = icon("robot"))
   ),
 
-  navset_card_underline(
-    nav_panel(
-      "Raw data",
+  nav_panel(
+    "Raw data",
+    icon = bsicons::bs_icon("table"),
+    card(
+      full_screen = TRUE,
+      card_header("Uploaded dataset"),
       DT::DTOutput("raw_data_table")
-    ),
-    nav_panel(
-      "Coding matrix",
-      div(class = "mb-2", downloadButton("download_coded", "Download coded data (.csv)")),
-      DT::DTOutput("coded_data_table")
-    ),
-    nav_panel(
-      "Mixed-methods plot",
-      plotOutput("matrix_interaction_plot", height = "500px"),
-      DT::DTOutput("summary_table")
     )
-  )
+  ),
+
+  nav_panel(
+    "Coding matrix",
+    icon = bsicons::bs_icon("tags"),
+    card(
+      full_screen = TRUE,
+      card_header(
+        class = "d-flex justify-content-between align-items-center",
+        "Themes coded by the model (NA = model call failed)",
+        downloadButton("download_coded", "Download .csv", class = "btn-sm btn-outline-primary")
+      ),
+      DT::DTOutput("coded_data_table")
+    )
+  ),
+
+  nav_panel(
+    "Mixed-methods plot",
+    icon = bsicons::bs_icon("bar-chart"),
+    layout_column_wrap(
+      width = 1 / 3,
+      fill = FALSE,
+      value_box(
+        title = "Rows coded",
+        value = textOutput("kpi_coded"),
+        showcase = bsicons::bs_icon("check2-square"),
+        theme = value_box_theme(bg = neudata_cols[["teal"]], fg = "#fff")
+      ),
+      value_box(
+        title = "Rows failed",
+        value = textOutput("kpi_failed"),
+        showcase = bsicons::bs_icon("exclamation-triangle"),
+        theme = value_box_theme(bg = neudata_cols[["blue"]], fg = "#fff")
+      ),
+      value_box(
+        title = "Themes",
+        value = textOutput("kpi_themes"),
+        showcase = bsicons::bs_icon("tags"),
+        theme = value_box_theme(bg = neudata_cols[["navy"]], fg = "#fff")
+      )
+    ),
+    layout_columns(
+      col_widths = c(7, 5),
+      card(
+        full_screen = TRUE,
+        card_header("Metric by theme presence"),
+        plotOutput("matrix_interaction_plot", height = "450px")
+      ),
+      card(
+        full_screen = TRUE,
+        card_header("Summary"),
+        DT::DTOutput("summary_table")
+      )
+    )
+  ),
+
+  nav_panel(
+    "About",
+    icon = bsicons::bs_icon("info-circle"),
+    card(
+      card_header("About shinyVIVO"),
+      p("shinyVIVO codes qualitative text against your themes with a large language model ",
+        "running locally in ", tags$a(href = "https://ollama.com", target = "_blank", "Ollama"),
+        ", then compares a quantitative metric between texts with and without each theme. ",
+        "The text is sent only to the Ollama endpoint you set, which by default is your own machine."),
+      p("Treat the codes as a first pass. Check a sample against a human coder before ",
+        "reporting results, and read the differences as associations, not causes."),
+      p(
+        "Built by ",
+        tags$a(href = "https://www.neu-data.com", target = "_blank", "Neudata Consulting Ltd"),
+        " — data science, biostatistics and research analytics."
+      )
+    )
+  ),
+
+  nav_spacer(),
+  nav_item(tags$a(href = "https://www.neu-data.com", target = "_blank", bsicons::bs_icon("globe"), "neu-data.com"))
 )
 
 # --- Server ------------------------------------------------------------------
@@ -96,8 +178,8 @@ server <- function(input, output, session) {
   })
 
   output$raw_data_table <- DT::renderDT({
-    DT::datatable(req(data_source()), options = list(pageLength = 10),
-                  class = "cell-border stripe")
+    DT::datatable(req(data_source()), rownames = FALSE,
+                  options = list(pageLength = 10, dom = "ftip"))
   })
 
   coded <- reactiveVal(NULL)
@@ -134,11 +216,12 @@ server <- function(input, output, session) {
       showNotification(sprintf("%d of %d rows could not be coded (shown as NA).",
                                failed, nrow(res)), type = "warning")
     }
-    coded(list(df = res, themes = themes))
+    coded(list(df = res, themes = themes, failed = failed))
   })
 
   output$coded_data_table <- DT::renderDT({
-    DT::datatable(req(coded())$df, options = list(pageLength = 10))
+    DT::datatable(req(coded())$df, rownames = FALSE,
+                  options = list(pageLength = 10, dom = "ftip"))
   })
 
   output$download_coded <- downloadHandler(
@@ -146,12 +229,19 @@ server <- function(input, output, session) {
     content = function(file) utils::write.csv(req(coded())$df, file, row.names = FALSE)
   )
 
+  output$kpi_coded <- renderText({
+    res <- req(coded())
+    nrow(res$df) - res$failed
+  })
+  output$kpi_failed <- renderText(req(coded())$failed)
+  output$kpi_themes <- renderText(length(req(coded())$themes))
+
   output$matrix_interaction_plot <- renderPlot({
     res <- req(coded())
     validate(need(isTruthy(input$metric_col),
                   "The dataset has no numeric column to compare against."))
     plot_theme_metric(res$df, res$themes, input$metric_col)
-  })
+  }, res = 96)
 
   output$summary_table <- DT::renderDT({
     res <- req(coded())
@@ -162,4 +252,4 @@ server <- function(input, output, session) {
   })
 }
 
-shinyApp(ui = ui, server = server)
+shinyApp(ui, server)

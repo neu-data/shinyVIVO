@@ -7,7 +7,7 @@
 launch_app(...)
 }
 \arguments{
-\item{...}{Passed to [shiny::runApp()] (e.g. `port`, `launch.browser`).}
+\item{...}{Passed to \code{\link[shiny:runApp]{shiny::runApp()}} (e.g. \code{port}, \code{launch.browser}).}
 }
 \value{
 Called for its side effect of running the app.

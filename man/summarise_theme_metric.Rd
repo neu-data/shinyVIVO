@@ -7,15 +7,15 @@
 summarise_theme_metric(df, themes, metric_col)
 }
 \arguments{
-\item{df}{A coded data frame (see [code_dataframe()]).}
+\item{df}{A coded data frame (see \code{\link[=code_dataframe]{code_dataframe()}}).}
 
 \item{themes}{Theme column names.}
 
 \item{metric_col}{Name of a numeric column.}
 }
 \value{
-A data frame with columns `Theme`, `State` (`"Absent"` /
-  `"Present"`), `n` and `mean`. Rows with `NA` codes are excluded.
+A data frame with columns \code{Theme}, \code{State} (\code{"Absent"} /
+\code{"Present"}), \code{n} and \code{mean}. Rows with \code{NA} codes are excluded.
 }
 \description{
 Summarise a metric by theme presence

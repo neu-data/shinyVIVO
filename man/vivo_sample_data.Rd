@@ -11,12 +11,12 @@ vivo_sample_data(path = NULL)
 as CSV.}
 }
 \value{
-A data frame with columns `user_id`, `text` and `metric`
-  (invisibly if `path` is given).
+A data frame with columns \code{user_id}, \code{text} and \code{metric}
+(invisibly if \code{path} is given).
 }
 \description{
 Ten short user-feedback comments with a behavioural metric (session
-minutes), written so that `Frustration`, `Bug Report` and `Praise` are
+minutes), written so that \code{Frustration}, \verb{Bug Report} and \code{Praise} are
 easy for a model to pick up. Useful for trying out the app.
 }
 \examples{

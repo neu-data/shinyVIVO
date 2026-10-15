@@ -1,0 +1,99 @@
+---
+title: "Getting started with shinyVIVO"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with shinyVIVO}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+shinyVIVO codes qualitative text against a set of themes with a large
+language model running locally in [Ollama](https://ollama.com), then
+compares a quantitative metric between texts with and without each theme.
+You can do this point-and-click in the app, or from code.
+
+## Set up Ollama
+
+Install Ollama, then pull a model:
+
+```
+ollama pull llama3
+```
+
+Ollama listens on `http://localhost:11434`. Text is sent only to that
+endpoint, so with the default setting it never leaves your machine.
+
+## The app
+
+```{r, eval = FALSE}
+shinyVIVO::launch_app()
+```
+
+1. Upload a `.csv` or `.xlsx` file, or click **load the sample dataset**.
+2. Pick the column holding the text and a numeric metric column.
+3. Choose the model and type your themes, separated by commas.
+4. Click **Run local AI coding**.
+
+The **Coding matrix** tab shows one `TRUE`/`FALSE` column per theme, and
+`NA` where the model call failed, so failures are never counted as "theme
+absent". You can download it as a CSV. The **Mixed-methods plot** tab
+compares the mean metric for rows with and without each theme.
+
+## From code
+
+The sample data has ten short feedback comments and a session-length metric:
+
+```{r}
+library(shinyVIVO)
+
+feedback <- vivo_sample_data()
+head(feedback, 3)
+```
+
+`code_dataframe()` codes every row with `ollama_code_text()`:
+
+```{r, eval = FALSE}
+themes <- c("Frustration", "Bug Report", "Praise")
+coded <- code_dataframe(feedback, text_col = "text", themes = themes,
+                        model = "llama3")
+```
+
+To run this vignette without Ollama, pass a stand-in coder. Any function
+that takes a text and the themes and returns a named logical vector works:
+
+```{r}
+keyword_coder <- function(text, themes, ...) {
+  c(
+    Frustration  = grepl("garbage|crazy|locked up|wiped", text),
+    `Bug Report` = grepl("crash|bug|timeout|locked up", text),
+    Praise       = grepl("fantastic|impressed|intuitive", text)
+  )[themes]
+}
+
+themes <- c("Frustration", "Bug Report", "Praise")
+coded <- code_dataframe(feedback, "text", themes, coder = keyword_coder)
+coded[, c("user_id", themes)]
+```
+
+Then compare the metric by theme:
+
+```{r}
+summarise_theme_metric(coded, themes, "metric")
+```
+
+```{r, fig.width = 7, fig.height = 4.5, fig.alt = "Bar chart of mean session length with and without each theme."}
+plot_theme_metric(coded, themes, "metric")
+```
+
+## Good practice
+
+- **Validate first.** Have a person code a sample of the texts and check
+  the model agrees before reporting results.
+- **Treat results as associations.** A theme that goes with longer
+  sessions does not cause them.
+- **Pin the model.** Record the exact model name and version, since coding
+  can change between model releases.

@@ -7,7 +7,7 @@
 parse_themes(x)
 }
 \arguments{
-\item{x}{A string such as `"Frustration, Bug Report, Praise"`.}
+\item{x}{A string such as \code{"Frustration, Bug Report, Praise"}.}
 }
 \value{
 A character vector of unique, non-empty, trimmed theme names.

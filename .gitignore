@@ -1,6 +1,9 @@
-.Rproj.user
+.Rproj.user/
 .Rhistory
 .RData
-*.Rcheck
-shinyVIVO_*.tar.gz
+.Renviron
+docs/
+inst/doc
+*.tar.gz
+*.Rcheck/
 .claude/

@@ -11,7 +11,7 @@ ollama_models(url = "http://localhost:11434")
 }
 \value{
 A character vector of model names (empty if the server is
-  unreachable).
+unreachable).
 }
 \description{
 List models available on an Ollama server
