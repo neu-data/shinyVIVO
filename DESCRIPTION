@@ -1,0 +1,30 @@
+Package: shinyVIVO
+Type: Package
+Title: An Interactive Mixed-Methods AI Coding Workbench
+Version: 0.1.0
+Authors@R:
+    person("Your", "Name", email = "b.osangir@gmail.com",
+           role = c("aut", "cre"))
+Description: A point-and-click 'shiny' workbench for qualitative and
+    mixed-methods researchers. Upload a spreadsheet of text responses,
+    code them against a set of themes with a local large language model
+    served by 'Ollama', and map the resulting codes against quantitative
+    metrics. Text never leaves the researcher's machine.
+License: MIT + file LICENSE
+URL: https://github.com/neu-data/shinyVIVO
+BugReports: https://github.com/neu-data/shinyVIVO/issues
+Encoding: UTF-8
+RoxygenNote: 8.0.0
+Depends:
+    R (>= 4.1.0)
+Imports:
+    shiny (>= 1.8.0),
+    bslib (>= 0.6.0),
+    DT (>= 0.32),
+    ggplot2 (>= 3.5.0),
+    httr2 (>= 1.0.0),
+    jsonlite (>= 1.8.8),
+    readxl (>= 1.4.0)
+Suggests:
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

@@ -1,0 +1,6 @@
+.Rproj.user
+.Rhistory
+.RData
+*.Rcheck
+shinyVIVO_*.tar.gz
+.claude/
