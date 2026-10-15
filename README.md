@@ -51,6 +51,8 @@ ollama pull llama3
 shinyVIVO::launch_app()
 ```
 
+<img src="man/figures/app-screenshot.png" alt="The shinyVIVO workbench: a configuration sidebar for data, Ollama model and themes; value boxes for rows coded, rows failed and themes; a bar chart of mean metric with and without each theme; and a summary table." width="100%" />
+
 1. Upload a `.csv` or `.xlsx` file, or click **load the sample dataset**.
 2. Pick the text column and a numeric metric column.
 3. Choose the model and type your themes, separated by commas.
