@@ -17,7 +17,8 @@ unreachable).
 List models available on an Ollama server
 }
 \examples{
-\dontrun{
+\donttest{
+# character(0) unless an Ollama server is running locally
 ollama_models()
 }
 }

@@ -1,5 +1,5 @@
 Package: shinyVIVO
-Title: A Point-and-Click Mixed-Methods Coding Workbench with Local AI
+Title: Mixed-Methods Coding Workbench Using Local Language Models
 Version: 0.1.0
 Authors@R: c(
     person("Bernard Isekah", "Osangir", , "b.osangir@gmail.com", role = c("aut", "cre")),
@@ -8,7 +8,7 @@ Authors@R: c(
 Description: A 'shiny' workbench for qualitative and mixed-methods
     researchers who prefer not to write code. Upload a spreadsheet of text
     responses, code them against a set of themes with a local large
-    language model served by 'Ollama', and compare a quantitative metric
+    language model served by 'Ollama' <https://ollama.com>, and compare a quantitative metric
     between texts with and without each theme. Text never leaves the
     researcher's machine. The coding, summary and plotting steps are also
     exported as functions for scripted use. Developed by Neudata Consulting

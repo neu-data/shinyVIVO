@@ -17,7 +17,7 @@ Opens the point-and-click app for uploading mixed-methods data, coding
 text with a local Ollama model, and plotting codes against metrics.
 }
 \examples{
-\dontrun{
-shinyVIVO::launch_app()
+if (interactive()) {
+  launch_app()
 }
 }

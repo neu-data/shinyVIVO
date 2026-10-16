@@ -5,7 +5,8 @@
 #'   unreachable).
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
+#' # character(0) unless an Ollama server is running locally
 #' ollama_models()
 #' }
 ollama_models <- function(url = "http://localhost:11434") {
@@ -33,6 +34,7 @@ ollama_models <- function(url = "http://localhost:11434") {
 #'   request or parsing fails.
 #' @export
 #' @examples
+#' # Requires a running Ollama server with the model pulled
 #' \dontrun{
 #' ollama_code_text("The app crashed and I lost my work.",
 #'                  c("Frustration", "Bug Report", "Praise"))

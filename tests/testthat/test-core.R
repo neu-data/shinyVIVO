@@ -27,6 +27,7 @@ test_that("failed coding yields NA, not FALSE", {
 })
 
 test_that("ollama_code_text returns NA when server unreachable", {
+  skip_on_cran()
   out <- ollama_code_text("hello", c("A", "B"), url = "http://127.0.0.1:1", timeout = 2)
   expect_equal(out, c(A = NA, B = NA))
 })

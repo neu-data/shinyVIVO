@@ -11,8 +11,8 @@
 #' @importFrom DT DTOutput
 #' @importFrom readxl read_excel
 #' @examples
-#' \dontrun{
-#' shinyVIVO::launch_app()
+#' if (interactive()) {
+#'   launch_app()
 #' }
 launch_app <- function(...) {
   app_dir <- system.file("shiny-apps", "shinyVIVO", package = "shinyVIVO")

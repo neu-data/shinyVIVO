@@ -4,11 +4,11 @@
 \name{shinyVIVO-package}
 \alias{shinyVIVO}
 \alias{shinyVIVO-package}
-\title{shinyVIVO: A Point-and-Click Mixed-Methods Coding Workbench with Local AI}
+\title{shinyVIVO: Mixed-Methods Coding Workbench Using Local Language Models}
 \description{
-\if{html}{\figure{logo.svg}{options: style='float: right' alt='logo' width='120'}}
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-A 'shiny' workbench for qualitative and mixed-methods researchers who prefer not to write code. Upload a spreadsheet of text responses, code them against a set of themes with a local large language model served by 'Ollama', and compare a quantitative metric between texts with and without each theme. Text never leaves the researcher's machine. The coding, summary and plotting steps are also exported as functions for scripted use. Developed by Neudata Consulting Ltd.
+A 'shiny' workbench for qualitative and mixed-methods researchers who prefer not to write code. Upload a spreadsheet of text responses, code them against a set of themes with a local large language model served by 'Ollama' \url{https://ollama.com}, and compare a quantitative metric between texts with and without each theme. Text never leaves the researcher's machine. The coding, summary and plotting steps are also exported as functions for scripted use. Developed by Neudata Consulting Ltd.
 }
 \seealso{
 Useful links:

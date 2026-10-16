@@ -32,6 +32,7 @@ Sends the text to Ollama with a JSON schema that forces one boolean per
 theme, so the model output can be parsed reliably.
 }
 \examples{
+# Requires a running Ollama server with the model pulled
 \dontrun{
 ollama_code_text("The app crashed and I lost my work.",
                  c("Frustration", "Bug Report", "Praise"))
