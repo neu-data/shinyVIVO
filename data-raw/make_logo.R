@@ -1,103 +1,160 @@
 # ---------------------------------------------------------------------------
 # Builds the shinyVIVO hex logo and the pkgdown favicons.
 #
-# The motif is the app at work: an app window holding lines of text, two of
-# them highlighted as coded themes, with coding stripes in the margin as in
-# NVivo, and a pointer clicking (point-and-click, no code). The hex follows
-# the Neudata sticker family shared with llmCoder and quant2qual: navy fill,
-# teal border, white name, neu-data.com beneath.
+# A participant's words chalked on a blackboard between quote marks, with
+# coloured chalk highlights and code brackets in the margin: in vivo coding,
+# where codes come from people's own words. Everything is drawn with jittered
+# strokes so it reads as hand-made chalk rather than vector art.
+#
+# Fonts are Windows system fonts (Gill Sans MT, Segoe Print, Century
+# Schoolbook); other systems fall back to sans/serif.
 #
 # Run from the package root:  source("data-raw/make_logo.R")
 # ---------------------------------------------------------------------------
 
 library(grid)
 
-navy <- "#04242F"
-teal <- "#055F56"
-teal_mid <- "#2E8B7F"
-teal_light <- "#5FA39B"
-seafoam <- "#9FD3CB"
-blue <- "#6C8DB8"
-grey <- "#C9D3D8"
-white <- "#FFFFFF"
+W <- 518; H <- 600; CX <- W / 2; CY <- H / 2
+u <- function(v) unit(v, "native")
 
-family <- if ("Segoe UI" %in% systemfonts::system_fonts()$family) "Segoe UI" else "sans"
+fams <- systemfonts::system_fonts()$family
+font <- function(want, fallback) if (want %in% fams) want else fallback
+f_name <- font("Gill Sans MT", "sans")
+f_hand <- font("Segoe Print", "sans")
+f_quote <- font("Century Schoolbook", "serif")
 
-hex_xy <- function(r, cx = 0.5, cy = 0.5) {
-  a <- (seq(90, 390, by = 60)[1:6]) * pi / 180
-  list(x = cx + r * cos(a) * (600 / 518), y = cy + r * sin(a))
+chalk_white <- "#F4F1E8"
+yellow <- "#F7D23E"
+pink <- "#F28BA8"
+mint <- "#8FD9B6"
+
+hex <- function(r) {
+  a <- seq(90, 390, by = 60)[1:6] * pi / 180
+  list(x = CX + r * cos(a), y = CY + r * sin(a))
+}
+hex_grob <- function(r, ...) polygonGrob(u(hex(r)$x), u(hex(r)$y), ...)
+
+# --- hand-drawn strokes ------------------------------------------------------
+densify <- function(x, y, step = 3) {
+  ox <- x[1]; oy <- y[1]
+  for (i in seq_along(x)[-1]) {
+    n <- max(2, ceiling(sqrt((x[i] - x[i - 1])^2 + (y[i] - y[i - 1])^2) / step))
+    ox <- c(ox, seq(x[i - 1], x[i], length.out = n)[-1])
+    oy <- c(oy, seq(y[i - 1], y[i], length.out = n)[-1])
+  }
+  list(x = ox, y = oy)
+}
+wobble <- function(p, amt) {
+  n <- length(p$x)
+  smooth <- function() stats::filter(rnorm(n + 10, 0, amt), rep(1 / 6, 6), circular = TRUE)[1:n]
+  list(x = p$x + smooth(), y = p$y + smooth())
+}
+stroke <- function(x, y, col, lwd = 3, passes = 2, amt = 1.2, close = FALSE, alpha = 0.9) {
+  if (close) { x <- c(x, x[1]); y <- c(y, y[1]) }
+  p <- densify(x, y)
+  for (i in seq_len(passes)) {
+    q <- wobble(p, amt)
+    grid.lines(u(q$x), u(q$y), gp = gpar(col = col, lwd = lwd * runif(1, 0.7, 1.1), alpha = alpha,
+                                         lineend = "round", linejoin = "round"))
+  }
+}
+fill_wobbly <- function(x, y, col, alpha = 0.95, layers = 2, amt = 0.6) {
+  p <- densify(x, y, 4)
+  for (i in seq_len(layers)) {
+    q <- wobble(p, amt)
+    grid.polygon(u(q$x), u(q$y), gp = gpar(fill = col, col = NA, alpha = alpha / layers * 1.6))
+  }
+}
+# Cursive: a prolate cycloid makes the loops; each loop gets a letter height
+# (x-height, or a taller ascender), and words are separated by gaps.
+scribble <- function(x0, x1, y0, size = 8, col = chalk_white, lwd = 2.4) {
+  x <- x0
+  w <- 0.62
+  while (x < x1 - 12) {
+    wl <- min(runif(1, 40, 95), (x1 - x) / 0.55)
+    t <- seq(0, wl, by = 0.35)
+    cyc <- floor(w * t / (2 * pi))
+    h <- sample(c(1, 1, 1, 1, 2.2, 1.3), max(cyc) + 1, TRUE)[cyc + 1]
+    xx <- x + 0.55 * t - 3.1 * sin(w * t)
+    yy <- y0 + size * 0.38 * (1 - cos(w * t)) * h + 0.6 * sin(t / 7)
+    grid.lines(u(xx), u(yy), gp = gpar(col = col, lwd = lwd, alpha = 0.88,
+                                       lineend = "round", linejoin = "round"))
+    x <- x + 0.55 * wl + runif(1, 8, 13)
+  }
 }
 
 draw_logo <- function() {
+  set.seed(31)
   grid.newpage()
-  outer <- hex_xy(0.5)
-  inner <- hex_xy(0.468)
-  grid.polygon(outer$x, outer$y, gp = gpar(fill = teal, col = NA))
-  grid.polygon(inner$x, inner$y, gp = gpar(fill = navy, col = NA))
+  pushViewport(viewport(xscale = c(0, W), yscale = c(0, H)))
 
-  # --- app window
-  wx <- 0.47
-  wy <- 0.57
-  ww <- 0.44
-  wh <- 0.27
-  grid.roundrect(x = wx, y = wy, width = ww, height = wh, r = unit(0.03, "npc"),
-                 gp = gpar(fill = white, col = NA))
-  # title bar with three dots
-  bar_y <- wy + wh / 2 - 0.028
-  grid.lines(c(wx - ww / 2 + 0.01, wx + ww / 2 - 0.01), c(bar_y - 0.026, bar_y - 0.026),
-             gp = gpar(col = grey, lwd = 2))
-  for (i in 0:2) {
-    grid.circle(x = wx - ww / 2 + 0.035 + i * 0.03, y = bar_y, r = 0.0105,
-                gp = gpar(fill = c(teal, teal_light, blue)[i + 1], col = NA))
-  }
-
-  # --- text lines; two carry a highlight (a coded theme)
-  x0 <- wx - ww / 2 + 0.035
-  line_y <- bar_y - 0.026 - c(0.04, 0.08, 0.12, 0.16)
-  line_w <- c(0.29, 0.25, 0.30, 0.18)
-  hl <- c(NA, seafoam, NA, teal_light)
-  for (i in seq_along(line_y)) {
-    if (!is.na(hl[i])) {
-      grid.lines(c(x0 - 0.008, x0 + line_w[i] + 0.008), c(line_y[i], line_y[i]),
-                 gp = gpar(col = hl[i], lwd = 17, lineend = "round"))
+  # wooden frame, then the board clipped to the inner hex
+  grid.draw(hex_grob(299, gp = gpar(fill = "#7A5230", col = NA)))
+  pushViewport(viewport(xscale = c(0, W), yscale = c(0, H), clip = hex_grob(278)))
+  grid.rect(gp = gpar(fill = radialGradient(c("#2F4A3E", "#1E322A"), cx1 = 0.5, cy1 = 0.55, r2 = 0.8),
+                      col = NA))
+  n <- 1800  # chalk dust
+  grid.points(u(runif(n, 0, W)), u(runif(n, 0, H)), pch = 16, size = unit(runif(n, 0.3, 1.6), "pt"),
+              gp = gpar(col = "#FFFFFF", alpha = runif(n, 0.02, 0.09)))
+  for (i in 1:5) {  # eraser smudges
+    sx <- runif(1, 60, 380); sy <- runif(1, 170, 500)
+    for (k in 1:25) {
+      grid.lines(u(sx + c(0, runif(1, 60, 140))), u(rep(sy + rnorm(1, 0, 12), 2) + c(0, rnorm(1, 0, 8))),
+                 gp = gpar(col = "#FFFFFF", lwd = runif(1, 4, 10), alpha = 0.012, lineend = "round"))
     }
-    grid.lines(c(x0, x0 + line_w[i]), c(line_y[i], line_y[i]),
-               gp = gpar(col = if (is.na(hl[i])) grey else navy, lwd = 6, lineend = "round"))
   }
 
-  # --- coding stripes in the right margin, aligned with the coded lines
-  sx <- wx + ww / 2 - 0.045
-  grid.lines(c(sx, sx), c(line_y[2] + 0.02, line_y[2] - 0.02),
-             gp = gpar(col = teal_mid, lwd = 8, lineend = "round"))
-  grid.lines(c(sx, sx), c(line_y[4] + 0.02, line_y[4] - 0.02),
-             gp = gpar(col = teal, lwd = 8, lineend = "round"))
+  # the quote, with chalk highlights on the coded passages
+  grid.text("“", x = u(118), y = u(452),
+            gp = gpar(col = chalk_white, fontsize = 90, fontfamily = f_quote, alpha = 0.8))
+  set.seed(7)
+  ys <- c(420, 388, 356, 324, 292)
+  ends <- c(396, 368, 404, 340, 262)
+  hl <- c(NA, yellow, NA, pink, mint)
+  for (i in seq_along(ys)) {
+    if (!is.na(hl[i])) {
+      for (k in 1:5) {
+        grid.lines(u(c(132, ends[i] + 4) + rnorm(2, 0, 2)), u(rep(ys[i] + 3, 2) + rnorm(2, 0, 2.5)),
+                   gp = gpar(col = hl[i], lwd = 14, alpha = 0.22, lineend = "round"))
+      }
+    }
+    scribble(140, ends[i], ys[i] - 3)
+  }
+  grid.text("”", x = u(296), y = u(276),
+            gp = gpar(col = chalk_white, fontsize = 90, fontfamily = f_quote, alpha = 0.8))
 
-  # --- pointer clicking the first highlight
-  px <- 0.49
-  py <- line_y[2] - 0.005
-  arrow_x <- c(0, 0, 0.022, 0.034, 0.046, 0.034, 0.062)
-  arrow_y <- c(0, -0.105, -0.078, -0.115, -0.108, -0.072, -0.072)
-  grid.polygon(px + arrow_x * (600 / 518), py + arrow_y,
-               gp = gpar(fill = navy, col = white, lwd = 3, linejoin = "round"))
+  # code brackets in the margin
+  for (b in list(list(398, 378, yellow), list(334, 282, pink))) {
+    stroke(c(424, 432, 432, 424), c(b[[1]], b[[1]], b[[2]], b[[2]]), col = b[[3]],
+           lwd = 3, passes = 3, amt = 0.9, alpha = 0.55)
+  }
 
-  # --- name and address
-  grid.text("shinyVIVO", x = 0.5, y = 0.285,
-            gp = gpar(col = white, fontsize = 60, fontface = "bold", fontfamily = family))
-  grid.text("neu-data.com", x = 0.5, y = 0.175,
-            gp = gpar(col = seafoam, fontsize = 22, fontfamily = family))
+  # stick of chalk on the ledge
+  fill_wobbly(c(318, 396, 402, 324), c(232, 254, 238, 216), "#F7F4EC")
+
+  # name, tagline and address
+  grid.text("shinyVIVO", x = u(CX), y = u(156),
+            gp = gpar(col = chalk_white, fontsize = 60, fontfamily = f_name))
+  grid.text("in vivo coding", x = u(CX), y = u(112),
+            gp = gpar(col = yellow, fontsize = 18, fontfamily = f_hand))
+  f <- 0.64; off <- 16  # along the lower-right edge
+  grid.text("neu-data.com", x = u(CX + f * 239 - 0.5 * off), y = u(CY - 276 + f * 138 + 0.866 * off),
+            rot = 30, gp = gpar(col = "#CFC7B0", fontsize = 13, fontfamily = f_name))
+  popViewport()
+
+  # a thin dark line where the frame meets the board
+  edge <- hex(279)
+  stroke(edge$x, edge$y, col = "#1A120B", lwd = 1.6, passes = 1, amt = 0.4, close = TRUE, alpha = 0.6)
+  popViewport()
 }
 
 dir.create("man/figures", showWarnings = FALSE, recursive = TRUE)
-ragg::agg_png("man/figures/logo.png", width = 518, height = 600, background = "transparent", res = 72)
+ragg::agg_png("man/figures/logo.png", width = W, height = H, background = "transparent", res = 72)
 draw_logo()
 invisible(grDevices::dev.off())
 
-svglite_ok <- requireNamespace("svglite", quietly = TRUE)
-if (svglite_ok) {
-  svglite::svglite("man/figures/logo.svg", width = 518 / 72, height = 600 / 72, bg = "transparent")
-  draw_logo()
-  invisible(grDevices::dev.off())
-}
+# No SVG: it would carry the Windows font names and thousands of chalk-dust
+# points, and pkgdown prefers an SVG logo when one exists.
 
 # Favicons, cut from the PNG with magick so they match it exactly.
 dir.create("pkgdown/favicon", showWarnings = FALSE, recursive = TRUE)
@@ -128,8 +185,8 @@ writeLines(c(
   '    {"src": "/web-app-manifest-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable"},',
   '    {"src": "/web-app-manifest-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}',
   "  ],",
-  '  "theme_color": "#04242F",',
-  '  "background_color": "#04242F",',
+  '  "theme_color": "#1E322A",',
+  '  "background_color": "#1E322A",',
   '  "display": "standalone"',
   "}"
 ), "pkgdown/favicon/site.webmanifest")
